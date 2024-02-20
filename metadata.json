@@ -10,9 +10,9 @@
         "Description": "Simple display for virtual desktops",
         "EnabledByDefault": true,
         "Icon": "preferences-desktop-virtual",
-        "Id": "org.kde.plasma.minimaldesktopindicator",
+        "Id": "org.kde.plasma.plasm6desktopindicator",
         "License": "GPL-3.0+",
-        "Name": "Minimal Desktop Indicator",
+        "Name": "Desktop Indicator",
         "ServiceTypes": [
             "Plasma/Applet"
         ],
