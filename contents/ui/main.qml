@@ -1,229 +1,126 @@
-/*
-    SPDX-FileCopyrightText: 2022 Kyle McGrath <dualitykyle@pm.me>
+import QtQuick
+import QtQuick.Layouts
+import org.kde.plasma.plasmoid
+import org.kde.plasma.plasma5support as Plasma5Support
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.private.pager
 
-    SPDX-License-Identifier: GPL-3.0-or-later
-*/
+PlasmoidItem {
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.1
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 3.0 as PlasmaComponents
-import org.kde.kquickcontrolsaddons 2.0 as KQuickControlsAddonsComponents
-import org.kde.plasma.private.pager 2.0
-
-GridLayout {
     id: root
 
-    property int scrollWheelDelta: 0
+    preferredRepresentation: fullRepresentation
 
-    rows: {
-        if (Plasmoid.configuration.singleRow) {
-            return 1;
-        } else {
-            return pagerModel.layoutRows;
+    GridLayout {
+        id: grid
+        width: parent.Layout.minimumWidth * 0.9
+        height: parent.Layout.minimumHeight * 0.9
+        anchors.centerIn : parent
+        // padding: 3
+        columnSpacing: plasmoid.configuration.spacingHorizontal
+        rowSpacing: plasmoid.configuration.spacingVertical
+        columns: {
+            var columns = 1;
+            if( isSingleRow ) columns = isHorizontal?pagerModel.count:1;
+            else columns = isHorizontal?Math.ceil(pagerModel.count/pagerModel.layoutRows):pagerModel.layoutRows;
+            return columns;
+        }
+        rows: {
+            let rows = 1;
+            if( isSingleRow ) rows = isHorizontal ? 1 : pagerModel.count;
+            else rows = isHorizontal ? pagerModel.layoutRows : Math.ceil(pagerModel.count/pagerModel.layoutRows);
+            return rows;
+        }
+        Repeater {
+            id: repeater
+            model: pagerModel.count
+            DesktopRepresentation { pos: index }
+            onCountChanged: root.updateRepresentation()
         }
     }
-    columns: {
-        if (Plasmoid.configuration.singleRow) {
-            return pagerModel.count;
-        } else {
-            return Math.ceil(pagerModel.count / pagerModel.layoutRows);
-        }
-    }
-    columnSpacing: 0
-    rowSpacing: 0
 
-    Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
+    property int wheelDelta: 0
+    property bool isHorizontal: plasmoid.formFactor != PlasmaCore.Types.Vertical
+    property bool isSingleRow: plasmoid.configuration.singleRow
+    property bool wrapOn: plasmoid.configuration.desktopWrapOn
+
+
+    anchors.fill: parent
+    Layout.minimumWidth: grid.columns * (plasmoid.configuration.dotSizeCustom + plasmoid.configuration.spacingHorizontal)
+    Layout.minimumHeight: grid.rows * (plasmoid.configuration.dotSizeCustom + plasmoid.configuration.spacingVertical)
 
     PagerModel {
         id: pagerModel
-
-        enabled: root.visible
-        screenGeometry: plasmoid.screenGeometry
-
+        enabled: true
+        showDesktop: plasmoid.configuration.currentDesktopSelected == 1
+        screenGeometry: plasmoid.containment.screenGeometry
         pagerType: PagerModel.VirtualDesktops
+        onCurrentPageChanged: updateRepresentation()
     }
-
-    Repeater {
-        id: indicatorRepeater
-        model: pagerModel.count
-
-        Rectangle {
-            id: indicatorContainer
-            
-            color: "transparent"
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumWidth: {
-                if (Plasmoid.configuration.dotSize == 0) {
-                    return PlasmaCore.Theme.defaultFont.pixelSize;
-                } else if (Plasmoid.configuration.dotSize == 1) {
-                    return indicatorDot.font.pixelSize;
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.MiddleButton
+        onClicked: perform( Plasmoid.configuration.middleButtonCommand )
+        onWheel : wheel => {
+            wheelDelta += wheel.angleDelta.y || wheel.angleDelta.x;
+            let increment = 0;
+            while (wheelDelta >= 120) {
+                wheelDelta -= 120;
+                increment++;
+            }
+            while (wheelDelta <= -120) {
+                wheelDelta += 120;
+                increment--;
+            }
+            while (increment !== 0) {
+                if (increment < 0) {
+                    const nextPage = wrapOn? (pagerModel.currentPage + 1) % repeater.count :
+                        Math.min(pagerModel.currentPage + 1, repeater.count - 1);
+                    pagerModel.changePage(nextPage);
                 } else {
-                    return Plasmoid.configuration.dotSizeCustom;
-                }
-            }
-            Layout.minimumHeight: {
-                if (!Plasmoid.configuration.dotSize == 2) {
-                    return 0;
-                } else {
-                    return Plasmoid.configuration.dotSizeCustom;
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                acceptedButtons: {
-                    if (Plasmoid.configuration.rightClickAction == 0) {
-                        return Qt.LeftButton;
-                    } else {
-                        return Qt.LeftButton | Qt.RightButton;
-                    }
-                }
-                z: {
-                    if(Plasmoid.configuration.leftClickAction != 3) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
+                    const previousPage = wrapOn ? (repeater.count + pagerModel.currentPage - 1) % repeater.count :
+                        Math.max(pagerModel.currentPage - 1, 0);
+                    pagerModel.changePage(previousPage);
                 }
 
-                // TODO: Clean up and refactor this horrible, horrible mess
-                onClicked: {
-                    if (mouse.button === Qt.LeftButton && (Plasmoid.configuration.leftClickAction != 0 || Plasmoid.configuration.leftClickAction != 3)) {
-                        if (Plasmoid.configuration.leftClickAction == 1) {
-                            if (pagerModel.currentPage < pagerModel.count - 1) {
-                                pagerModel.changePage(pagerModel.currentPage + 1);
-                            } else if (Plasmoid.configuration.desktopWrapOn) {
-                                pagerModel.changePage(0);
-                            }
-                        } else if (Plasmoid.configuration.leftClickAction == 2) {
-                            if (pagerModel.currentPage > 0) {
-                                pagerModel.changePage(pagerModel.currentPage - 1);
-                            } else if (Plasmoid.configuration.desktopWrapOn) {
-                                pagerModel.changePage(pagerModel.count - 1);
-                            }
-                        } else if (Plasmoid.configuration.leftClickAction == 4) {
-                            exposeDesktop();
-                        }
-                    } else if (mouse.button === Qt.RightButton && (Plasmoid.configuration.rightClickAction != 0 || Plasmoid.configuration.leftClickAction != 3)) {
-                        if (Plasmoid.configuration.rightClickAction == 1) {
-                            if (pagerModel.currentPage < pagerModel.count - 1) {
-                                pagerModel.changePage(pagerModel.currentPage + 1);
-                            } else if (Plasmoid.configuration.desktopWrapOn) {
-                                pagerModel.changePage(0);
-                            }
-                        } else if (Plasmoid.configuration.rightClickAction == 2) {
-                            if (pagerModel.currentPage > 0) {
-                                pagerModel.changePage(pagerModel.currentPage - 1);
-                            } else if (Plasmoid.configuration.desktopWrapOn) {
-                                pagerModel.changePage(pagerModel.count - 1);
-                            }
-                        } else if (Plasmoid.configuration.rightClickAction == 3) {
-                            exposeDesktop();
-                        }
-                    }
-                }
-
-                // TODO: Clean up and refactor this not-quite-as-horrible mess
-                onWheel: {
-                    if (Plasmoid.configuration.scrollWheelOn) {
-                        // TODO: Add user option to invert direction of y-axis scroll
-                        scrollWheelDelta += wheel.angleDelta.x || wheel.angleDelta.y;
-                        
-                        let wheelStep = 0
-                        
-                        while (scrollWheelDelta <= 120) {
-                            scrollWheelDelta += 120;
-                            wheelStep--;
-                        }
-                        
-                        while (scrollWheelDelta >= 120) {
-                            scrollWheelDelta -= 120;
-                            wheelStep++;
-                        }
-                        
-                        while (wheelStep !== 0) {
-                            if (wheelStep < 0) {
-                                if (pagerModel.currentPage < pagerModel.count - 1) {
-                                    pagerModel.changePage(pagerModel.currentPage + 1);
-                                } else if (Plasmoid.configuration.desktopWrapOn) {
-                                    pagerModel.changePage(0);
-                                }
-                            } else {
-                                if (pagerModel.currentPage > 0) {
-                                    pagerModel.changePage(pagerModel.currentPage - 1);
-                                } else if (Plasmoid.configuration.desktopWrapOn) {
-                                    pagerModel.changePage(pagerModel.count - 1);
-                                }
-                            }
-                            wheelStep += (wheelStep < 0) ? 1 : -1;
-                        }
-                    }
-                }
-            }
-            
-            PlasmaComponents.Label {
-                id: indicatorDot
-                
-                anchors.centerIn: parent
-                font.pixelSize: {
-                    if (Plasmoid.configuration.dotSize == 0) {
-                        return PlasmaCore.Theme.defaultFont.pixelSize;
-                    } else if (Plasmoid.configuration.dotSize == 1) {
-                        //TODO: Consider adding state support for vertical panel users
-                        return parent.height;
-                    } else {
-                        return Plasmoid.configuration.dotSizeCustom;
-                    }
-                }
-                text: {
-                    if (Plasmoid.configuration.dotType == 0) {
-                        if (index == pagerModel.currentPage) {
-                            return "●";
-                        } else {
-                            return "○";
-                        }
-                    } else {
-                        if (index == pagerModel.currentPage) {
-                            return Plasmoid.configuration.activeDot;
-                        } else {
-                            return Plasmoid.configuration.inactiveDot;
-                        }
-                    }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        if (Plasmoid.configuration.leftClickAction == 3) {
-                            pagerModel.changePage(index);
-                        }
-                    }
-                    z: {
-                        if (Plasmoid.configuration.leftClickAction != 3) {
-                            return 0;
-                        } else {
-                            return 1;
-                        }
-                    }
-                }
+                increment += (increment < 0) ? 1 : -1;
+                wheelDelta = 0;
             }
         }
     }
-
-    PlasmaCore.DataSource {
+    function perform(input) {
+        executable.exec('qdbus org.kde.kglobalaccel /component/kwin invokeShortcut \"'+input+'\"')
+    }
+    Plasma5Support.DataSource {
         id: executable
         engine: "executable"
         connectedSources: []
-        onNewData: disconnectSource(sourceName)
-
         function exec(cmd) {
             executable.connectSource(cmd)
         }
+        onConnectedSourcesChanged: {
+            if (connectedSources.length > 0) {
+                var cmd = connectedSources.shift()
+                executable.connectSource(cmd)
+            }
+        }
+    }
+    function updateRepresentation() {
+        var pos = pagerModel.currentPage
+        for( var i = 0; i < repeater.count; i ++ ) {
+            var item = repeater.itemAt(i);
+            if (item ) {
+                if( i == pos ){
+                    item.activate(true);
+                }
+                else item.activate(false);
+            } else {
+                console.error("Item or label is undefined at index " + i);
+            }
+        }
+        grid.anchors.centerIn = root
     }
 
-    function exposeDesktop() {
-        executable.exec('qdbus org.kde.kglobalaccel /component/kwin invokeShortcut Overview')
-    }
+    onIsHorizontalChanged : updateRepresentation()
+    onIsSingleRowChanged: updateRepresentation()
 }

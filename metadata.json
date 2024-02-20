@@ -2,8 +2,8 @@
     "KPlugin": {
         "Authors": [
             {
-                "Email": "dualitykyle@pm.me",
-                "Name": "Kyle McGrath"
+                "Email": "dhruv8sh@proton.me",
+                "Name": "Dhruvesh Surolia"
             }
         ],
         "Category": "Windows and Tasks",
@@ -17,11 +17,10 @@
             "Plasma/Applet"
         ],
         "Version": "3.0",
-        "Website": "https://github.com/DualityKyle/plasma-desktop-indicator"
+        "Website": "https://github.com/dhruv8sh/plasma6-desktop-indicator"
     },
-    "X-Plasma-API": "declarativeappletscript",
-    "X-Plasma-MainScript": "ui/main.qml",
     "X-Plasma-Provides": [
         "org.kde.plasma.virtualdesktops"
-    ]
+    ],
+    "X-Plasma-API-Minimum-Version": "6.0"
 }

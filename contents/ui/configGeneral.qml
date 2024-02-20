@@ -1,73 +1,30 @@
-/*
-    SPDX-FileCopyrightText: 2022 Kyle McGrath <dualitykyle@pm.me>
-
-    SPDX-License-Identifier: GPL-3.0-or-later
-*/
-
-import QtQuick 2.0
-import QtQuick.Controls 2.5 as QC2
-import QtQuick.Layouts 1.12 as QtLayouts
-import org.kde.kirigami 2.4 as Kirigami
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.core 2.0 as PlasmaCore
+import QtQuick
+import QtQuick.Controls as QC2
+import QtQuick.Layouts as QtLayouts
+import org.kde.kirigami as Kirigami
+import org.kde.plasma.plasmoid
 
 QtLayouts.ColumnLayout {
     id: generalPage
 
     signal configurationChanged
 
-    property alias cfg_leftClickAction: leftClickAction.currentIndex
-    property alias cfg_rightClickAction: rightClickAction.currentIndex
-    property alias cfg_scrollWheelOn: scrollWheelOn.checked
-
+    property alias cfg_middleButtonCommand: middleButtonCommand.text
     property alias cfg_desktopWrapOn: desktopWrapOn.checked
     property alias cfg_singleRow: singleRow.checked
-
-    property alias cfg_dotSize: dotSize.currentIndex
+    property alias cfg_activeText: activeDot.text
+    property alias cfg_inactiveText: inactiveDot.text
+    property alias cfg_spacingHorizontal: spacingHorizontal.value
+    property alias cfg_spacingVertical: spacingVertical.value
     property alias cfg_dotSizeCustom: dotSizeCustom.value
 
-    property alias cfg_dotType: dotType.currentIndex
-    property alias cfg_activeDot: activeDot.text
-    property alias cfg_inactiveDot: inactiveDot.text
-
     Kirigami.FormLayout {
-        QtLayouts.Layout.fillWidth: true
-        
-        QtLayouts.RowLayout {
-            Kirigami.FormData.label: i18n("Left click action:")
-            
-            QC2.ComboBox {
-                id: leftClickAction
-                model: [
-                    i18n("Do nothing"),
-                    i18n("Switch to next desktop"),
-                    i18n("Switch to previous desktop"),
-                    i18n("Go to clicked desktop"),
-                    i18n("Show desktop overview"),
-                ]
-                onActivated: cfg_leftClickAction = currentIndex
-            }
-        }
-        
-        QtLayouts.RowLayout {
-            Kirigami.FormData.label: i18n("Right click action:")
-            
-            QC2.ComboBox {
-                id: rightClickAction
-                model: [
-                    i18n("Do nothing"),
-                    i18n("Switch to next desktop"),
-                    i18n("Switch to previous desktop"),
-                    i18n("Show desktop overview"),
-                ]
-                onActivated: cfg_rightClickAction = currentIndex
-                enabled: leftClickAction.currentIndex != 3 
-            }
-        }
 
-        QC2.CheckBox {
-            id: scrollWheelOn
-            text: i18n("Scrollwheel switches desktops")
+        QtLayouts.RowLayout {
+            Kirigami.FormData.label: i18n("Middle click command:")
+            QC2.TextField {
+                id: middleButtonCommand
+            }
         }
     
         Item {
@@ -76,14 +33,8 @@ QtLayouts.ColumnLayout {
 
         QtLayouts.ColumnLayout {
             Kirigami.FormData.label: i18n("Navigation behaviour:")
-            Kirigami.FormData.buddyFor: desktopWrapOff
-
-            QC2.RadioButton {
-                id: desktopWrapOff
-                text: i18n("Standard")
-            }
-
-            QC2.RadioButton {
+            Kirigami.FormData.buddyFor: desktopWrapOn
+            QC2.CheckBox {
                 id: desktopWrapOn
                 text: i18n("Wraparound")
             }
@@ -115,15 +66,6 @@ QtLayouts.ColumnLayout {
         QtLayouts.RowLayout {
             Kirigami.FormData.label: i18n("Indicator Dot Size:")
 
-            QC2.ComboBox {
-                id: dotSize
-                model: [
-                    i18n("Default"),
-                    i18n("Scale with panel size"),
-                    i18n("Custom Size")
-                ]
-            }
-
             QC2.SpinBox {
                 id: dotSizeCustom
                 textFromValue: function(value) {
@@ -132,9 +74,32 @@ QtLayouts.ColumnLayout {
                 valueFromText: function(text) {
                     return parseInt(text)
                 }
-                from: PlasmaCore.Theme.defaultFont.pixelSize
+                from: 6
                 to: 72
-                enabled: dotSize.currentIndex == 2
+            }
+        }
+        QtLayouts.RowLayout {
+            Kirigami.FormData.label: i18n("Horizontal Spacing:")
+
+            QC2.SpinBox {
+                id: spacingHorizontal
+                textFromValue: function(value) {
+                    return i18n("%1 px", value)
+                }
+                from: 0
+                to: 30
+            }
+        }
+        QtLayouts.RowLayout {
+            Kirigami.FormData.label: i18n("Vertical Spacing:")
+
+            QC2.SpinBox {
+                id: spacingVertical
+                textFromValue: function(value) {
+                    return i18n("%1 px", value)
+                }
+                from: 0
+                to: 30
             }
         }
 
@@ -143,34 +108,18 @@ QtLayouts.ColumnLayout {
             columns: 3
             QtLayouts.Layout.fillWidth: true
 
-            Kirigami.FormData.label: i18n("Indicator Dot Type:")
-            Kirigami.FormData.buddyFor: dotType
-    
-            QC2.ComboBox {
-                id: dotType
-                model: [
-                    i18n("Dot (Default)"),
-                    i18n("Custom")
-                ]
-                onActivated: cfg_dotType = currentIndex
-            }
-
             QC2.Label {
                 text: i18n("Active Dot:")
                 QtLayouts.Layout.fillWidth: true
                 horizontalAlignment: Text.AlignRight
-                visible: dotType.currentIndex == 1
             }
-
             QC2.TextField {
                 id: activeDot
                 QtLayouts.Layout.maximumWidth: 35
                 maximumLength: 1
                 text: Plasmoid.configuration.activeDot
                 horizontalAlignment: TextInput.AlignHCenter
-                visible: dotType.currentIndex == 1
             }        
-
             Item {
                 width: 5
             }
@@ -179,7 +128,6 @@ QtLayouts.ColumnLayout {
                 text: i18n("Inactive Dot:")
                 QtLayouts.Layout.fillWidth: true
                 horizontalAlignment: Text.AlignRight
-                visible: dotType.currentIndex == 1
             }
 
             QC2.TextField {
@@ -188,7 +136,6 @@ QtLayouts.ColumnLayout {
                 maximumLength: 1
                 text: Plasmoid.configuration.inactiveDot
                 horizontalAlignment: TextInput.AlignHCenter
-                visible: dotType.currentIndex == 1
             }         
         }
     }
@@ -210,21 +157,5 @@ QtLayouts.ColumnLayout {
         
     Item {
         QtLayouts.Layout.fillHeight: true
-    }
-
-    Component.onCompleted: {
-        if (Plasmoid.configuration.scrollWheelOn) {
-            scrollWheelOn.checked = true;
-        }
-        if (!Plasmoid.configuration.desktopWrapOn) {
-            desktopWrapOff.checked = true;
-        }
-        if (!Plasmoid.configuration.singleRow) {
-            multiRow.checked = true;
-        }
-        if (Plasmoid.configuration.dotType == 0) {
-            activeDot.text = "●"
-            inactiveDot.text = "○"  
-        }
     }
 }
