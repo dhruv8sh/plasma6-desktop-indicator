@@ -17,8 +17,8 @@ PlasmoidItem {
         height: parent.Layout.minimumHeight * 0.9
         anchors.centerIn : parent
         // padding: 3
-        columnSpacing: plasmoid.configuration.spacingHorizontal
-        rowSpacing: plasmoid.configuration.spacingVertical
+        columnSpacing: plasmoid.configuration.spacingHorizontal/2
+        rowSpacing: plasmoid.configuration.spacingVertical/2
         columns: {
             var columns = 1;
             if( isSingleRow ) columns = isHorizontal?pagerModel.count:1;
@@ -111,16 +111,15 @@ PlasmoidItem {
             var item = repeater.itemAt(i);
             if (item ) {
                 if( i == pos ){
-                    item.activate(true);
+                    item.activate(true, i);
                 }
-                else item.activate(false);
+                else item.activate(false, i);
             } else {
                 console.error("Item or label is undefined at index " + i);
             }
         }
         grid.anchors.centerIn = root
     }
-
     onIsHorizontalChanged : updateRepresentation()
     onIsSingleRowChanged: updateRepresentation()
 }

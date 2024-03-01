@@ -14,6 +14,18 @@
       <label>Whether the desktop navigation stops at the end or wraps around.</label>
       <default>true</default>
     </entry>
+    <entry name="boldOnActive" type="Bool">
+      <label>Whether the indicator is bold when active.</label>
+      <default>false</default>
+    </entry>
+    <entry name="italicOnActive" type="Bool">
+      <label>Whether the indicator is italic when active.</label>
+      <default>false</default>
+    </entry>
+    <entry name="highlightOnActive" type="Bool">
+      <label>Whether the indicator is highlight when active.</label>
+      <default>false</default>
+    </entry>
     <entry name="singleRow" type="Bool">
       <label>Whether the widget displays in a single row, or follows Plasma's configuration.</label>
       <default>true</default>
@@ -24,10 +36,14 @@
     </entry>
     <entry name="spacingHorizontal" type="Int">
       <label>Select spacing betwwen the dots horizontally.</label>
-      <default>0</default>
+      <default>4</default>
     </entry>
     <entry name="spacingVertical" type="Int">
       <label>Select spacing between the dots vertically.</label>
+      <default>4</default>
+    </entry>
+    <entry name="indicatorType" type="Enum">
+      <label>Choose whether to use numbered dot indicator, or a custom character.</label>
       <default>0</default>
     </entry>
     <entry name="activeText" type="string">

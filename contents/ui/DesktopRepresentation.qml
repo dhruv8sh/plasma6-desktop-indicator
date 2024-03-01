@@ -4,18 +4,33 @@ import org.kde.kirigami as Kirigami
 import org.kde.plasma.plasmoid
 
 Rectangle {
+    id: container
     z: 5
-    height: 10
-    width: 10
+    height: plasmoid.configuration.dotSizeCustom
+    width: plasmoid.configuration.dotSizeCustom
     property int pos
-    color: "transparent"
-    // property activeText: plasmoid.configuration.activeText
+    property bool boldOnActive: plasmoid.configuration.boldOnActive
+    property bool italicOnActive: plasmoid.configuration.italicOnActive
+    property bool highlightOnActive: plasmoid.configuration.highlightOnActive
 
+    // 0 : Text
+    // 1 : Numbered
+    property int indicatorType: plasmoid.configuration.indicatorType
+
+    color: "transparent"
+    Rectangle{
+        id: rect
+        height: parent.height + plasmoid.configuration.spacingVertical
+        width: parent.width + plasmoid.configuration.spacingHorizontal
+        anchors.centerIn: parent
+        color: Kirigami.Theme.highlightColor
+        radius: rect.height / 2
+    }
     Label {
         font.pixelSize: Plasmoid.configuration.dotSizeCustom
         id: label
         anchors.centerIn: parent
-        text: plasmoid.configuration.inactiveText
+        text: indicatorType == 1 ? pos+1 : plasmoid.configuration.inactiveText
         onTextChanged: function(text) {
             if( text == plasmoid.configuration.activeText )
                 fadeAnimation.running = true
@@ -34,9 +49,16 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton
-        onClicked:pagerModel.changePage(index)
+        onClicked:pagerModel.changePage(pos)
     }
-    function activate(yes) {
-        label.text = yes ? plasmoid.configuration.activeText : plasmoid.configuration.inactiveText;
+    function activate(yes, to) {
+        label.font.bold= yes && boldOnActive;
+        label.font.italic= yes && italicOnActive;
+        if( indicatorType == 0 ) {
+            label.text = yes ? plasmoid.configuration.activeText : plasmoid.configuration.inactiveText;
+        } else {
+            label.text = pos+1;
+        }
+        rect.visible = yes && highlightOnActive;
     }
 }

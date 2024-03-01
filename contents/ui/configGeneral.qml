@@ -17,6 +17,10 @@ QtLayouts.ColumnLayout {
     property alias cfg_spacingHorizontal: spacingHorizontal.value
     property alias cfg_spacingVertical: spacingVertical.value
     property alias cfg_dotSizeCustom: dotSizeCustom.value
+    property alias cfg_boldOnActive: boldOnActive.checked
+    property alias cfg_italicOnActive: italicOnActive.checked
+    property alias cfg_highlightOnActive: highlightOnActive.checked
+    property alias cfg_indicatorType: indicatorType.currentIndex
 
     Kirigami.FormLayout {
 
@@ -39,6 +43,22 @@ QtLayouts.ColumnLayout {
                 text: i18n("Wraparound")
             }
         }
+        QtLayouts.ColumnLayout {
+            Kirigami.FormData.label: i18n("On Active:")
+            Kirigami.FormData.buddyFor: boldOnActive
+            QC2.CheckBox {
+                id: boldOnActive
+                text: i18n("Bold")
+            }
+            QC2.CheckBox {
+                id: italicOnActive
+                text: i18n("Italic")
+            }
+            QC2.CheckBox {
+                id: highlightOnActive
+                text: i18n("Highlight")
+            }
+        }
 
         Item {
             Kirigami.FormData.isSection: true
@@ -51,11 +71,13 @@ QtLayouts.ColumnLayout {
             QC2.RadioButton {
                 id: singleRow
                 text: i18n("Single row")
+                checked: plasmoid.configuration.singleRow
             }
 
             QC2.RadioButton {
                 id: multiRow
                 text: i18n("Follow Plasma setting")
+                checked: !plasmoid.configuration.singleRow
             }
         }
 
@@ -106,12 +128,22 @@ QtLayouts.ColumnLayout {
         QtLayouts.GridLayout {
             id: dotCharGrid
             columns: 3
+            Kirigami.FormData.label: i18n("Indicator style:")
+            Kirigami.FormData.buddyFor: indicatorType
             QtLayouts.Layout.fillWidth: true
+            QC2.ComboBox {
+                id: indicatorType
+                model: [
+                    i18n("Custom"),
+                    i18n("Workspace Numbers")
+                ]
+            }
 
             QC2.Label {
                 text: i18n("Active Dot:")
                 QtLayouts.Layout.fillWidth: true
                 horizontalAlignment: Text.AlignRight
+                visible: indicatorType.currentIndex == 0
             }
             QC2.TextField {
                 id: activeDot
@@ -119,6 +151,7 @@ QtLayouts.ColumnLayout {
                 maximumLength: 1
                 text: Plasmoid.configuration.activeDot
                 horizontalAlignment: TextInput.AlignHCenter
+                visible: indicatorType.currentIndex == 0
             }        
             Item {
                 width: 5
@@ -128,6 +161,7 @@ QtLayouts.ColumnLayout {
                 text: i18n("Inactive Dot:")
                 QtLayouts.Layout.fillWidth: true
                 horizontalAlignment: Text.AlignRight
+                visible: indicatorType.currentIndex == 0
             }
 
             QC2.TextField {
@@ -136,6 +170,7 @@ QtLayouts.ColumnLayout {
                 maximumLength: 1
                 text: Plasmoid.configuration.inactiveDot
                 horizontalAlignment: TextInput.AlignHCenter
+                visible: indicatorType.currentIndex == 0
             }         
         }
     }
@@ -144,6 +179,7 @@ QtLayouts.ColumnLayout {
         QtLayouts.Layout.fillWidth: true
         QtLayouts.Layout.topMargin: Kirigami.Units.largeSpacing * 1
         QtLayouts.Layout.bottomMargin: Kirigami.Units.largeSpacing * 0.5
+        visible: indicatorType.currentIndex == 0
     }
 
     QC2.Label {
@@ -153,6 +189,7 @@ QtLayouts.ColumnLayout {
         text: i18n("When using custom indicator types, ensure your theme's font supports your desired character to prevent widget display issues.")
         font: Kirigami.Theme.smallFont
         wrapMode: Text.Wrap
+        visible: indicatorType.currentIndex == 0
     }
         
     Item {
