@@ -13,8 +13,6 @@ PlasmoidItem {
 
     GridLayout {
         id: grid
-        width: parent.Layout.minimumWidth * 0.9
-        height: parent.Layout.minimumHeight * 0.9
         anchors.centerIn : parent
         // padding: 3
         columnSpacing: plasmoid.configuration.spacingHorizontal/2
@@ -44,10 +42,10 @@ PlasmoidItem {
     property bool isSingleRow: plasmoid.configuration.singleRow
     property bool wrapOn: plasmoid.configuration.desktopWrapOn
 
-
+    anchors.centerIn: parent
     anchors.fill: parent
-    Layout.minimumWidth: grid.columns * (plasmoid.configuration.dotSizeCustom + plasmoid.configuration.spacingHorizontal)
-    Layout.minimumHeight: grid.rows * (plasmoid.configuration.dotSizeCustom + plasmoid.configuration.spacingVertical)
+    Layout.minimumWidth: grid.implicitWidth
+    Layout.minimumHeight: grid.implicitHeight
 
     PagerModel {
         id: pagerModel
