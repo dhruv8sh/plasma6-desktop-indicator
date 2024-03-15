@@ -34,7 +34,6 @@ QtLayouts.ColumnLayout {
         Item {
             Kirigami.FormData.isSection: true
         }
-
         QtLayouts.ColumnLayout {
             Kirigami.FormData.label: i18n("Navigation behaviour:")
             Kirigami.FormData.buddyFor: desktopWrapOn

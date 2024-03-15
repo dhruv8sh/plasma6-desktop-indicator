@@ -26,6 +26,10 @@
       <label>Whether the indicator is highlight when active.</label>
       <default>false</default>
     </entry>
+    <!--entry name="showOnlyWithWindows" type="Bool">
+      <label>Whether the indicator shown when window is active.</label>
+      <default>false</default>
+    </entry-->
     <entry name="singleRow" type="Bool">
       <label>Whether the widget displays in a single row, or follows Plasma's configuration.</label>
       <default>true</default>

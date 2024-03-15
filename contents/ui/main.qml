@@ -4,12 +4,14 @@ import org.kde.plasma.plasmoid
 import org.kde.plasma.plasma5support as Plasma5Support
 import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.private.pager
+import org.kde.kcmutils as KCM
+import org.kde.config as KConfig
 
 PlasmoidItem {
 
     id: root
-
     preferredRepresentation: fullRepresentation
+    property alias current: pagerModel.currentPage
 
     GridLayout {
         id: grid
@@ -44,8 +46,8 @@ PlasmoidItem {
 
     anchors.centerIn: parent
     anchors.fill: parent
-    Layout.minimumWidth: grid.implicitWidth
-    Layout.minimumHeight: grid.implicitHeight
+    Layout.minimumWidth: grid.implicitWidth + plasmoid.configuration.spacingHorizontal
+    Layout.minimumHeight: grid.implicitHeight + plasmoid.configuration.spacingVertical
 
     PagerModel {
         id: pagerModel
@@ -72,12 +74,12 @@ PlasmoidItem {
             }
             while (increment !== 0) {
                 if (increment < 0) {
-                    const nextPage = wrapOn? (pagerModel.currentPage + 1) % repeater.count :
-                        Math.min(pagerModel.currentPage + 1, repeater.count - 1);
+                    const nextPage = wrapOn? (current + 1) % repeater.count :
+                        Math.min(current + 1, repeater.count - 1);
                     pagerModel.changePage(nextPage);
                 } else {
-                    const previousPage = wrapOn ? (repeater.count + pagerModel.currentPage - 1) % repeater.count :
-                        Math.max(pagerModel.currentPage - 1, 0);
+                    const previousPage = wrapOn ? (repeater.count + current - 1) % repeater.count :
+                        Math.max(current - 1, 0);
                     pagerModel.changePage(previousPage);
                 }
 
@@ -90,21 +92,24 @@ PlasmoidItem {
         executable.exec('qdbus org.kde.kglobalaccel /component/kwin invokeShortcut \"'+input+'\"')
     }
     Plasma5Support.DataSource {
-        id: executable
+        id: "executable"
         engine: "executable"
         connectedSources: []
-        function exec(cmd) {
-            executable.connectSource(cmd)
+        onNewData:function(sourceName, data){
+            var exitCode = data["exit code"]
+            var exitStatus = data["exit status"]
+            var stdout = data["stdout"]
+            var stderr = data["stderr"]
+            // console.log(data+" received after running "+ sourceName)
+            disconnectSource(sourceName)
         }
-        onConnectedSourcesChanged: {
-            if (connectedSources.length > 0) {
-                var cmd = connectedSources.shift()
-                executable.connectSource(cmd)
-            }
+        function exec(cmd) {
+            connectSource(cmd)
         }
     }
+
     function updateRepresentation() {
-        var pos = pagerModel.currentPage
+        var pos = current
         for( var i = 0; i < repeater.count; i ++ ) {
             var item = repeater.itemAt(i);
             if (item ) {
@@ -120,4 +125,24 @@ PlasmoidItem {
     }
     onIsHorizontalChanged : updateRepresentation()
     onIsSingleRowChanged: updateRepresentation()
+    Plasmoid.contextualActions: [
+        PlasmaCore.Action {
+            text: i18n("Add Virtual Desktop")
+            icon.name: "list-add"
+            visible: !root.isActivityPager && KConfig.KAuthorized.authorize("kcm_kwin_virtualdesktops")
+            onTriggered: pagerModel.addDesktop()
+        },
+        PlasmaCore.Action {
+            text: i18n("Remove Virtual Desktop")
+            icon.name: "list-remove"
+            visible: !root.isActivityPager && KConfig.KAuthorized.authorize("kcm_kwin_virtualdesktops")
+            enabled: repeater.count > 1
+            onTriggered: pagerModel.removeDesktop()
+        },
+        PlasmaCore.Action {
+            text: i18n("Configure Virtual Desktops…")
+            visible: !root.isActivityPager && KConfig.KAuthorized.authorize("kcm_kwin_virtualdesktops")
+            onTriggered: KCM.KCMLauncher.openSystemSettings("kcm_kwin_virtualdesktops")
+        }
+    ]
 }
