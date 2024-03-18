@@ -26,13 +26,13 @@ PlasmoidItem {
         rowSpacing: plasmoid.configuration.spacingVertical/2
         columns: {
             var columns = 1;
-            if( isSingleRow ) columns = isHorizontal?pagerModel.count+1 : 1;
+            if( isSingleRow ) columns = isHorizontal?pagerModel.count+addDesktop : 1;
             else columns = isHorizontal?Math.ceil(pagerModel.count/pagerModel.layoutRows):pagerModel.layoutRows;
             return columns;
         }
         rows: {
             let rows = 1;
-            if( isSingleRow ) rows = isHorizontal ? 1 : pagerModel.count+1;
+            if( isSingleRow ) rows = isHorizontal ? 1 : pagerModel.count+addDesktop;
             else rows = isHorizontal ? pagerModel.layoutRows : Math.ceil(pagerModel.count/pagerModel.layoutRows);
             return rows;
         }
