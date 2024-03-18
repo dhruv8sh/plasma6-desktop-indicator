@@ -16,7 +16,7 @@
         "ServiceTypes": [
             "Plasma/Applet"
         ],
-        "Version": "3.0",
+        "Version": "v0.3",
         "Website": "https://github.com/dhruv8sh/plasma6-desktop-indicator"
     },
     "X-Plasma-Provides": [
