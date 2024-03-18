@@ -30,6 +30,10 @@
       <label>Whether the indicator shown when window is active.</label>
       <default>false</default>
     </entry-->
+    <entry name="showAddDesktop" type="Bool">
+      <label>Whether the widget displays an 'Add Desktop' button.</label>
+      <default>false</default>
+    </entry>
     <entry name="singleRow" type="Bool">
       <label>Whether the widget displays in a single row, or follows Plasma's configuration.</label>
       <default>true</default>
@@ -58,6 +62,9 @@
       <label>The unicode character used for the inactive desktop indicator</label>
       <default>○</default>
     </entry>
-
+    <entry name="radiusFactor" type="Double">
+      <label>Radius</label>
+      <default>0.6</default>
+    </entry>
   </group>
 </kcfg>

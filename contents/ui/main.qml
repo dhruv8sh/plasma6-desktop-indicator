@@ -12,6 +12,11 @@ PlasmoidItem {
     id: root
     preferredRepresentation: fullRepresentation
     property alias current: pagerModel.currentPage
+    property int wheelDelta: 0
+    property bool isHorizontal: plasmoid.formFactor != PlasmaCore.Types.Vertical
+    property bool isSingleRow: plasmoid.configuration.singleRow
+    property bool wrapOn: plasmoid.configuration.desktopWrapOn
+    property int addDesktop: plasmoid.configuration.showAddDesktop && isSingleRow ? 1 : 0
 
     GridLayout {
         id: grid
@@ -21,28 +26,27 @@ PlasmoidItem {
         rowSpacing: plasmoid.configuration.spacingVertical/2
         columns: {
             var columns = 1;
-            if( isSingleRow ) columns = isHorizontal?pagerModel.count:1;
+            if( isSingleRow ) columns = isHorizontal?pagerModel.count+1 : 1;
             else columns = isHorizontal?Math.ceil(pagerModel.count/pagerModel.layoutRows):pagerModel.layoutRows;
             return columns;
         }
         rows: {
             let rows = 1;
-            if( isSingleRow ) rows = isHorizontal ? 1 : pagerModel.count;
+            if( isSingleRow ) rows = isHorizontal ? 1 : pagerModel.count+1;
             else rows = isHorizontal ? pagerModel.layoutRows : Math.ceil(pagerModel.count/pagerModel.layoutRows);
             return rows;
         }
         Repeater {
             id: repeater
-            model: pagerModel.count
-            DesktopRepresentation { pos: index }
+            model: pagerModel.count + addDesktop
+            DesktopRepresentation {
+                pos: index
+                isAddButton: addDesktop === 1 && index === pagerModel.count
+            }
             onCountChanged: root.updateRepresentation()
         }
     }
 
-    property int wheelDelta: 0
-    property bool isHorizontal: plasmoid.formFactor != PlasmaCore.Types.Vertical
-    property bool isSingleRow: plasmoid.configuration.singleRow
-    property bool wrapOn: plasmoid.configuration.desktopWrapOn
 
     anchors.centerIn: parent
     anchors.fill: parent
@@ -74,11 +78,11 @@ PlasmoidItem {
             }
             while (increment !== 0) {
                 if (increment < 0) {
-                    const nextPage = wrapOn? (current + 1) % repeater.count :
-                        Math.min(current + 1, repeater.count - 1);
+                    const nextPage = wrapOn? (current + 1) % pagerModel.count :
+                        Math.min(current + 1, pagerModel.count - 1);
                     pagerModel.changePage(nextPage);
                 } else {
-                    const previousPage = wrapOn ? (repeater.count + current - 1) % repeater.count :
+                    const previousPage = wrapOn ? (pagerModel.count + current - 1) % pagerModel.count :
                         Math.max(current - 1, 0);
                     pagerModel.changePage(previousPage);
                 }

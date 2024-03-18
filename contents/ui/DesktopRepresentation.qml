@@ -14,6 +14,9 @@ Rectangle {
     property bool boldOnActive: plasmoid.configuration.boldOnActive
     property bool italicOnActive: plasmoid.configuration.italicOnActive
     property bool highlightOnActive: plasmoid.configuration.highlightOnActive
+    property bool isAddButton: false
+    property bool isActive: false
+    opacity: isAddButton ? 0.5: 1
 
     // 0 : Text
     // 1 : Numbered
@@ -26,7 +29,8 @@ Rectangle {
         width: parent.width + plasmoid.configuration.spacingHorizontal
         anchors.centerIn: parent
         color: Kirigami.Theme.highlightColor
-        radius: rect.height / 2
+        visible: isAddButton
+        radius: (rect.height / 2)*plasmoid.configuration.radiusFactor
     }
     // TaskManager.ActivityInfo {
     //     id: activityInfo
@@ -43,10 +47,15 @@ Rectangle {
     //     filterByActivity: true
     // }
     Label {
-        font.pixelSize: Plasmoid.configuration.dotSizeCustom
         id: label
         anchors.centerIn: parent
-        text: indicatorType == 1 ? pos+1 : plasmoid.configuration.inactiveText
+        font.bold: isActive && boldOnActive
+        font.italic: isActive && italicOnActive
+        font.pixelSize: Plasmoid.configuration.dotSizeCustom + (isAddButton ? 2 : 0)
+        text: {
+            if( isAddButton ) return '+'
+            else return indicatorType == 1 ? pos+1 : plasmoid.configuration.inactiveText
+        }
         onTextChanged: function(text) {
             if( text == plasmoid.configuration.activeText )
                 fadeAnimation.running = true
@@ -66,21 +75,17 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton
-        cursorShape:Qt.PointingHandCursor
-        onClicked:pagerModel.changePage(pos)
+        onClicked: isAddButton ? pagerModel.addDesktop() : pagerModel.changePage(pos)
+        onContainsMouseChanged: container.opacity = containsMouse || isAddButton ? 0.5 : 1
     }
     function activate(yes, to) {
-        label.font.bold= yes && boldOnActive;
-        label.font.italic= yes && italicOnActive;
-        label.color= yes && highlightOnActive ? Kirigami.Theme.highlightedTextColor : Kirigami.Theme.textColor
-        if( indicatorType == 0 ) {
-            label.text = yes ? plasmoid.configuration.activeText : plasmoid.configuration.inactiveText;
-        } else {
-            label.text = pos+1;
-        }
-        rect.visible = yes && highlightOnActive;
+        isActive = yes
+        if( isAddButton ) label.text = '+'
+        else if( indicatorType == 0 ) label.text = yes ? plasmoid.configuration.activeText : plasmoid.configuration.inactiveText;
+        else label.text = pos+1;
+        rect.visible = yes && highlightOnActive
+        z = yes ? 2 : 1
         // console.log( "Windows open on desktop "+pos+": "+taskmanager.tasks[0])
         // if( plasmoid.configuration.showOnlyWithWindows ) console.log( "Windows open on desktop "+pos+": "+taskmanager.count);
-        container.visible = yes || !plasmoid.configuration.showOnlyWithWindows || taskmanager.count > 0
     }
 }

@@ -10,17 +10,19 @@ QtLayouts.ColumnLayout {
     signal configurationChanged
 
     property alias cfg_middleButtonCommand: middleButtonCommand.text
-    property alias cfg_desktopWrapOn: desktopWrapOn.checked
-    property alias cfg_singleRow: singleRow.checked
-    property alias cfg_activeText: activeDot.text
-    property alias cfg_inactiveText: inactiveDot.text
-    property alias cfg_spacingHorizontal: spacingHorizontal.value
-    property alias cfg_spacingVertical: spacingVertical.value
-    property alias cfg_dotSizeCustom: dotSizeCustom.value
-    property alias cfg_boldOnActive: boldOnActive.checked
-    property alias cfg_italicOnActive: italicOnActive.checked
-    property alias cfg_highlightOnActive: highlightOnActive.checked
-    property alias cfg_indicatorType: indicatorType.currentIndex
+    property alias cfg_desktopWrapOn      : desktopWrapOn.checked
+    property alias cfg_singleRow          : singleRow.checked
+    property alias cfg_activeText         : activeDot.text
+    property alias cfg_inactiveText       : inactiveDot.text
+    property alias cfg_spacingHorizontal  : spacingHorizontal.value
+    property alias cfg_spacingVertical    : spacingVertical.value
+    property alias cfg_dotSizeCustom      : dotSizeCustom.value
+    property alias cfg_boldOnActive       : boldOnActive.checked
+    property alias cfg_italicOnActive     : italicOnActive.checked
+    property alias cfg_highlightOnActive  : highlightOnActive.checked
+    property alias cfg_indicatorType      : indicatorType.currentIndex
+    property alias cfg_showAddDesktop     : showAddDesktop.checked
+    property alias cfg_radiusFactor      : radiusSlider.value
 
     Kirigami.FormLayout {
 
@@ -41,6 +43,11 @@ QtLayouts.ColumnLayout {
                 id: desktopWrapOn
                 text: i18n("Wraparound")
             }
+            QC2.CheckBox {
+                id: showAddDesktop
+                text: i18n("Show Add Desktop Button")
+                enabled: singleRow.checked
+            }
         }
         QtLayouts.ColumnLayout {
             Kirigami.FormData.label: i18n("On Active:")
@@ -56,6 +63,18 @@ QtLayouts.ColumnLayout {
             QC2.CheckBox {
                 id: highlightOnActive
                 text: i18n("Highlight")
+            }
+        }
+        QtLayouts.ColumnLayout{
+            Kirigami.FormData.label: i18n("Highlight radius:")
+            Kirigami.FormData.buddyFor: radiusSlider
+            QC2.Slider {
+                id: radiusSlider
+                enabled: highlightOnActive.checked
+                height: 30
+                from: 0
+                to: 1
+                stepSize: 0.1
             }
         }
 
