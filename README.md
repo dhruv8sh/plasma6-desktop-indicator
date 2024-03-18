@@ -5,6 +5,7 @@ This is almost a complete refactor of the Plasma 5 applet by [DualityKyle](https
 ## Features:
 * <b>NEW:</b> Support for Vertical Panels
 * <b>NEW:</b> Support for custom spacing between indicators
+* <b>NEW:</b> Contextual actions added
 * Customisable middle click action
 * Switch desktops by scrolling widget
 * Workspace wraparound
