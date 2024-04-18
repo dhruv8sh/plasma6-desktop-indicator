@@ -1,17 +1,11 @@
-/*
-    SPDX-FileCopyrightText: 2022 Kyle McGrath <dualitykyle@pm.me>
+import QtQuick
+import QtQuick.Controls as QC2
+import QtQuick.Layouts as QtLayouts
+import org.kde.kirigami as Kirigami
+import org.kde.plasma.plasmoid
+import org.kde.plasma.core as PlasmaCore
 
-    SPDX-License-Identifier: GPL-3.0-or-later
-*/
-
-import QtQuick 2.0
-import QtQuick.Controls 2.5 as QC2
-import QtQuick.Layouts 1.12 as QtLayouts
-import org.kde.kirigami 2.4 as Kirigami
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.core 2.0 as PlasmaCore
-
-QtLayouts.ColumnLayout {
+Kirigami.ScrollablePage {
     id: generalPage
 
     signal configurationChanged
@@ -134,7 +128,30 @@ QtLayouts.ColumnLayout {
                 }
                 from: PlasmaCore.Theme.defaultFont.pixelSize
                 to: 72
-                enabled: dotSize.currentIndex == 2
+            }
+        }
+        QtLayouts.RowLayout {
+            Kirigami.FormData.label: i18n("Horizontal Spacing:")
+
+            QC2.SpinBox {
+                id: spacingHorizontal
+                textFromValue: function(value) {
+                    return i18n("%1 px", value)
+                }
+                from: 0
+                to: 500
+            }
+        }
+        QtLayouts.RowLayout {
+            Kirigami.FormData.label: i18n("Vertical Spacing:")
+
+            QC2.SpinBox {
+                id: spacingVertical
+                textFromValue: function(value) {
+                    return i18n("%1 px", value)
+                }
+                from: 0
+                to: 30
             }
         }
 
@@ -149,8 +166,9 @@ QtLayouts.ColumnLayout {
             QC2.ComboBox {
                 id: dotType
                 model: [
-                    i18n("Dot (Default)"),
-                    i18n("Custom")
+                    i18n("Custom"),
+                    i18n("Desktop Numbers"),
+                    i18n("Roman Numbers")
                 ]
                 onActivated: cfg_dotType = currentIndex
             }
@@ -164,11 +182,25 @@ QtLayouts.ColumnLayout {
 
             QC2.TextField {
                 id: activeDot
-                QtLayouts.Layout.maximumWidth: 35
-                maximumLength: 1
+                // QtLayouts.Layout.maximumWidth: 35
+                maximumLength: 20
                 text: Plasmoid.configuration.activeDot
                 horizontalAlignment: TextInput.AlignHCenter
-                visible: dotType.currentIndex == 1
+                visible: indicatorType.currentIndex == 0
+                onTextChanged: {
+                    var newText = "";
+                    for (var i = 0; i < text.length; ++i) {
+                        if (text.charCodeAt(i) >= 0xD800 && text.charCodeAt(i) <= 0xDBFF) {
+                            if (i + 1 < text.length && text.charCodeAt(i + 1) >= 0xDC00 && text.charCodeAt(i + 1) <= 0xDFFF) {
+                                newText += text[i] + text[i + 1];
+                                i++;
+                            } else { }
+                        } else {
+                            newText += text[i];
+                        }
+                    }
+                    text = newText;
+                }
             }        
 
             Item {
@@ -184,11 +216,25 @@ QtLayouts.ColumnLayout {
 
             QC2.TextField {
                 id: inactiveDot
-                QtLayouts.Layout.maximumWidth: 35
-                maximumLength: 1
+                // QtLayouts.Layout.maximumWidth: 35
+                maximumLength: 20
                 text: Plasmoid.configuration.inactiveDot
                 horizontalAlignment: TextInput.AlignHCenter
-                visible: dotType.currentIndex == 1
+                visible: indicatorType.currentIndex == 0
+                onTextChanged: {
+                    var newText = "";
+                    for (var i = 0; i < text.length; ++i) {
+                        if (text.charCodeAt(i) >= 0xD800 && text.charCodeAt(i) <= 0xDBFF) {
+                            if (i + 1 < text.length && text.charCodeAt(i + 1) >= 0xDC00 && text.charCodeAt(i + 1) <= 0xDFFF) {
+                                newText += text[i] + text[i + 1];
+                                i++;
+                            } else { }
+                        } else {
+                            newText += text[i];
+                        }
+                    }
+                    text = newText;
+                }
             }         
         }
     }
