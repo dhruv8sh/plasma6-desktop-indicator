@@ -38,6 +38,10 @@
       <label>Whether the widget displays in a single row, or follows Plasma's configuration.</label>
       <default>true</default>
     </entry>
+    <entry name="hideSingleWorkspace" type="Bool">
+      <label>Hide the indicator when only one workspace is used</label>
+      <default>false</default>
+    </entry>
     <entry name="dotSizeCustom" type="Int">
       <label>For fixed indicator dot size, select the size in pixels.</label>
       <default>12</default>

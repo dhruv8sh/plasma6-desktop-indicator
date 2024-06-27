@@ -17,6 +17,7 @@ PlasmoidItem {
     property bool isSingleRow: plasmoid.configuration.singleRow
     property bool wrapOn: plasmoid.configuration.desktopWrapOn
     property int addDesktop: plasmoid.configuration.showAddDesktop && isSingleRow ? 1 : 0
+    property bool hideSingleWorkspace: plasmoid.configuration.hideSingleWorkspace
 
     GridLayout {
         id: grid
@@ -38,7 +39,7 @@ PlasmoidItem {
         }
         Repeater {
             id: repeater
-            model: pagerModel.count + addDesktop
+            model: (pagerModel.count + addDesktop > 1 || !hideSingleWorkspace) ? pagerModel.count + addDesktop : 0
             DesktopRepresentation {
                 pos: index
                 isAddButton: addDesktop === 1 && index === pagerModel.count
@@ -114,13 +115,14 @@ PlasmoidItem {
 
     function updateRepresentation() {
         var pos = current
-        for( var i = 0; i < repeater.count; i ++ ) {
+        for (var i = 0; i < repeater.count; i++) {
             var item = repeater.itemAt(i);
-            if (item ) {
-                if( i == pos ){
+            if (item) {
+                if (i == pos) {
                     item.activate(true, i);
+                } else {
+                    item.activate(false, i);
                 }
-                else item.activate(false, i);
             } else {
                 console.error("Item or label is undefined at index " + i);
             }
