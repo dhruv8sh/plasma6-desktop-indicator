@@ -25,7 +25,7 @@ PlasmoidItem {
         // padding: 3
         columnSpacing: plasmoid.configuration.spacingHorizontal/2
         rowSpacing: plasmoid.configuration.spacingVertical/2
-        visible: pagerModel.count+addDesktop>1 || !hideSingleWorkspace || plasmoid.userConfiguring
+        visible: pagerModel.count+addDesktop>1 || !hideSingleWorkspace || (Plasmoid.containment.corona?.editMode ? true : false)
         columns: {
             var columns = 1;
             if( isSingleRow ) columns = isHorizontal?pagerModel.count+addDesktop : 1;
