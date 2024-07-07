@@ -40,7 +40,7 @@ PlasmoidItem {
         }
         Repeater {
             id: repeater
-            model: pagerModel.count
+            model: pagerModel.count + addDesktop
             DesktopRepresentation {
                 pos: index
                 isAddButton: addDesktop === 1 && index === pagerModel.count
