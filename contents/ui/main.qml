@@ -25,6 +25,7 @@ PlasmoidItem {
         // padding: 3
         columnSpacing: plasmoid.configuration.spacingHorizontal/2
         rowSpacing: plasmoid.configuration.spacingVertical/2
+        visible: pagerModel.count+addDesktop>1 || !hideSingleWorkspace || plasmoid.userConfiguring
         columns: {
             var columns = 1;
             if( isSingleRow ) columns = isHorizontal?pagerModel.count+addDesktop : 1;
@@ -39,7 +40,7 @@ PlasmoidItem {
         }
         Repeater {
             id: repeater
-            model: (pagerModel.count + addDesktop > 1 || !hideSingleWorkspace) ? pagerModel.count + addDesktop : 0
+            model: pagerModel.count
             DesktopRepresentation {
                 pos: index
                 isAddButton: addDesktop === 1 && index === pagerModel.count
