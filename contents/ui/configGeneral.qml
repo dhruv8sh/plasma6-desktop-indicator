@@ -23,6 +23,7 @@ QtLayouts.ColumnLayout {
     property alias cfg_indicatorType      : indicatorType.currentIndex
     property alias cfg_showAddDesktop     : showAddDesktop.checked
     property alias cfg_radiusFactor      : radiusSlider.value
+    property alias cfg_hideSingleWorkspace: hideSingleWorkspace.checked
 
     Kirigami.FormLayout {
 
@@ -47,6 +48,10 @@ QtLayouts.ColumnLayout {
                 id: showAddDesktop
                 text: i18n("Show Add Desktop Button")
                 enabled: singleRow.checked
+            }
+            QC2.CheckBox {
+                id: hideSingleWorkspace
+                text: i18n("Hide when only one workspace is used")
             }
         }
         QtLayouts.ColumnLayout {

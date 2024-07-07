@@ -17,6 +17,7 @@ Rectangle {
     property bool isAddButton: false
     property bool isActive: false
     opacity: isAddButton ? 0.5: 1
+    property bool hideSingleWorkspace: plasmoid.configuration.hideSingleWorkspace
 
     // 0 : Text
     // 1 : Numbered
