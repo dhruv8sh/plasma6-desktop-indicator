@@ -1,3 +1,5 @@
+This project has been closed due to its design limitations, and further development is now moved to [kara](https://github.com/dhruv8sh/kara).
+
 # Desktop Indicator for Plasma 6
 A simple applet to display current desktop status.
 This is almost a complete refactor of the Plasma 5 applet by [DualityKyle](https://github.com/DualityKyle/plasma-desktop-indicator).
